@@ -456,7 +456,7 @@ const loteriaCards = [
         // Función para iniciar el intervalo de cartas
         function startCardInterval() {
             // Convertir el valor del slider a segundos (de 1 a 10 segundos)
-            const intervalTime = (15 - speed) * 1000;
+            const intervalTime = 500*speed;//(11 - speed) * 1000;
             
             intervalId = setInterval(() => {
                 nextCard();
