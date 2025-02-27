@@ -259,11 +259,11 @@
                     <label for="showTitle">Título</label>
                 </div>
                 <div class="checkbox-group">
-                    <input type="checkbox" id="showPhrase" checked>
+                    <input type="checkbox" id="showPhrase">
                     <label for="showPhrase">Frase</label>
                 </div>
                 <div class="checkbox-group">
-                    <input type="checkbox" id="showNumber" checked>
+                    <input type="checkbox" id="showNumber">
                     <label for="showNumber">Número</label>
                 </div>
             </div>
@@ -437,7 +437,7 @@ const loteriaCards = [
         // Función para mostrar la siguiente carta
         function nextCard() {
             if (currentCardIndex >= deck.length) {
-                alert('¡Se han mostrado todas las cartas!');
+                //alert('¡Se han mostrado todas las cartas!');
                 pauseGame();
                 return;
             }
@@ -456,7 +456,7 @@ const loteriaCards = [
         // Función para iniciar el intervalo de cartas
         function startCardInterval() {
             // Convertir el valor del slider a segundos (de 1 a 10 segundos)
-            const intervalTime = (11 - speed) * 1000;
+            const intervalTime = (15 - speed) * 1000;
             
             intervalId = setInterval(() => {
                 nextCard();
