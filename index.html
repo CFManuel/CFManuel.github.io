@@ -337,7 +337,7 @@ const loteriaCards = [
         // Función para mostrar la carta actual
         function updateCardDisplay(card) {
             if (!card) {
-                cardImage.src = "./Loteria/1 el gallo.jpg" ;
+                cardImage.src = "./Loteria/1 el gallo.jpg";
                 cardTitle.textContent = '';
                 cardPhrase.textContent = '';
                 cardNumber.textContent = '';
@@ -473,6 +473,7 @@ const loteriaCards = [
         // Event Listeners
         startBtn.addEventListener('click', startGame);
         pauseBtn.addEventListener('click', pauseGame);
+        cardImage.addEventListener('click', pauseGame);
         nextCardBtn.addEventListener('click', nextCard);
         shuffleBtn.addEventListener('click', shuffleDeck);
         resetBtn.addEventListener('click', resetGame);
