@@ -407,6 +407,14 @@ const loteriaCards = [
                 nextCard();
             }, intervalTime);
         }
+
+        function startPauseGame(){
+            if(isPaused){
+                startGame();
+            }else{
+                pauseGame();
+            }
+        }
         
         // Función para iniciar el juego
         function startGame() {
@@ -473,7 +481,7 @@ const loteriaCards = [
         // Event Listeners
         startBtn.addEventListener('click', startGame);
         pauseBtn.addEventListener('click', pauseGame);
-        cardImage.addEventListener('click', pauseGame);
+        cardImage.addEventListener('click', startPauseGame);
         nextCardBtn.addEventListener('click', nextCard);
         shuffleBtn.addEventListener('click', shuffleDeck);
         resetBtn.addEventListener('click', resetGame);
