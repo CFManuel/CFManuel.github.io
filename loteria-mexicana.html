@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lotería Mexicana</title>
+    <style>
+        :root {
+            --primary-color: #E63946;
+            --secondary-color: #1D3557;
+            --accent-color: #F1FAEE;
+            --background-color: #457B9D;
+            --text-color: #F1FAEE;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background-color: var(--secondary-color);
+            padding: 20px;
+            text-align: center;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        
+        h1 {
+            margin: 0;
+            color: var(--accent-color);
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 20px;
+            justify-content: center;
+            background-color: var(--secondary-color);
+            padding: 20px;
+            border-radius: 10px;
+        }
+        
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        
+        button:hover {
+            background-color: #c1272d;
+        }
+        
+        button:disabled {
+            background-color: #999;
+            cursor: not-allowed;
+        }
+        
+        .display-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 15px 0;
+        }
+        
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            margin-right: 15px;
+        }
+        
+        .checkbox-group label {
+            margin-left: 5px;
+        }
+        
+        .speed-control {
+            width: 100%;
+            max-width: 400px;
+            margin: 15px auto;
+        }
+        
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .slider-container label {
+            width: 120px;
+        }
+        
+        .slider-container input {
+            flex-grow: 1;
+        }
+        
+        .current-card {
+            text-align: center;
+            margin: 20px 0;
+            min-height: 400px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background-color: var(--secondary-color);
+            border-radius: 10px;
+            padding: 20px;
+        }
+        
+        .card-image {
+            max-width: 200px;
+            margin-bottom: 15px;
+            border: 5px solid var(--primary-color);
+            border-radius: 10px;
+            background-color: white;
+        }
+        
+        .card-info {
+            margin-bottom: 10px;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        
+        .history {
+            margin-top: 30px;
+            background-color: var(--secondary-color);
+            border-radius: 10px;
+            padding: 20px;
+        }
+        
+        .history h2 {
+            text-align: center;
+            margin-top: 0;
+        }
+        
+        .history-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 10px;
+        }
+        
+        .history-card {
+            text-align: center;
+            background-color: var(--accent-color);
+            color: var(--secondary-color);
+            padding: 10px;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        
+        .history-card img {
+            width: 60px;
+            height: 80px;
+            object-fit: contain;
+            margin-bottom: 5px;
+        }
+        
+        @media (max-width: 768px) {
+            .controls {
+                flex-direction: column;
+            }
+            
+            .speed-control {
+                width: 100%;
+            }
+            
+            .history-cards {
+                grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Lotería Mexicana</h1>
+        </header>
+        
+        <div class="controls">
+            <button id="startBtn">Iniciar Juego</button>
+            <button id="pauseBtn" disabled>Pausar</button>
+            <button id="nextCardBtn" disabled>Siguiente Carta</button>
+            <button id="shuffleBtn">Barajar</button>
+            <button id="resetBtn">Reiniciar</button>
+            
+            <div class="display-options">
+                <div class="checkbox-group">
+                    <input type="checkbox" id="showTitle" checked>
+                    <label for="showTitle">Título</label>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="showPhrase" checked>
+                    <label for="showPhrase">Frase</label>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="showNumber" checked>
+                    <label for="showNumber">Número</label>
+                </div>
+            </div>
+            
+            <div class="speed-control">
+                <div class="slider-container">
+                    <label for="speedSlider">Velocidad:</label>
+                    <input type="range" id="speedSlider" min="1" max="10" value="5">
+                    <span id="speedValue">5</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="current-card">
+            <img id="cardImage" class="card-image" src="/api/placeholder/200/300" alt="Carta de lotería">
+            <div id="cardTitle" class="card-info"></div>
+            <div id="cardPhrase" class="card-info"></div>
+            <div id="cardNumber" class="card-info"></div>
+        </div>
+        
+        <div class="history">
+            <h2>Historial</h2>
+            <div id="historyCards" class="history-cards"></div>
+        </div>
+    </div>
+    
+    <script>
+        // Datos de la lotería mexicana
+const loteriaCards = [
+    { id: 1, title: "El Gallo", phrase: "El que le cantó a San Pedro no le volverá a cantar", image: "./Loteria/1 el gallo.jpg" },
+    { id: 2, title: "El Diablo", phrase: "Diablo, Diablito, juguemos un machetito", image: "./Loteria/2 el diablo.jpg" },
+    { id: 3, title: "La Dama", phrase: "Puliendo el paso, por toda la calle real", image: "./Loteria/3 la dama.jpg" },
+    { id: 4, title: "El Catrín", phrase: "Don Ferruco en la alameda, su bastón quería tirar", image: "./Loteria/4 el catrin.jpg" },
+    { id: 5, title: "El Paraguas", phrase: "Para el sol y para el agua", image: "./Loteria/5 el paraguas.jpg" },
+    { id: 6, title: "La Sirena", phrase: "Con los cantos de sirena, no te vayas a marear", image: "./Loteria/6 la sirena.jpg" },
+    { id: 7, title: "La Escalera", phrase: "Súbeme paso a pasito, no quieras pegar brinquitos", image: "./Loteria/7 la escalera.jpg" },
+    { id: 8, title: "La Botella", phrase: "La herramienta del borracho", image: "./Loteria/8 la botella.jpg" },
+    { id: 9, title: "El Barril", phrase: "Tanto bebió el albañil, que quedó como barril", image: "./Loteria/9 el barril.jpg" },
+    { id: 10, title: "El Árbol", phrase: "El que a buen árbol se arrima, buena sombra le cobija", image: "./Loteria/10 el arbol.jpg" },
+    { id: 11, title: "El Melón", phrase: "Me lo dan o me lo quitan", image: "./Loteria/11 el melon.jpg" },
+    { id: 12, title: "El Valiente", phrase: "Por qué le corres cobarde, trayendo tan buen puñal", image: "./Loteria/12 el valiente.jpg" },
+    { id: 13, title: "El Gorrito", phrase: "Ponle su gorrito al nene, no se nos vaya a resfriar", image: "./Loteria/13 el gorrito.jpg" },
+    { id: 14, title: "La Muerte", phrase: "La muerte tilica y flaca", image: "./Loteria/14 la muerte.jpg" },
+    { id: 15, title: "La Pera", phrase: "El que espera, desespera", image: "./Loteria/15 la pera.jpg" },
+    { id: 16, title: "La Bandera", phrase: "Verde, blanco y colorado, la bandera del soldado", image: "./Loteria/16 la bandera.jpg" },
+    { id: 17, title: "El Bandolón", phrase: "Tocando su bandolón, está el mariachi Simón", image: "./Loteria/17 el bandolon.jpg" },
+    { id: 18, title: "El Violoncello", phrase: "Creciendo se fue hasta el cielo", image: "./Loteria/18 el violoncello.jpg" },
+    { id: 19, title: "La Garza", phrase: "Al otro lado del río tengo mi banco de arena, donde se sienta mi chata pico de garza morena", image: "./Loteria/19 la garza.jpg" },
+    { id: 20, title: "El Pájaro", phrase: "Tu me traes a puros brincos, como pájaro en la rama", image: "./Loteria/20 el pajaro.jpg" },
+    { id: 21, title: "La Mano", phrase: "La mano del escribano", image: "./Loteria/21 la mano.jpg" },
+    { id: 22, title: "La Bota", phrase: "Una bota es igual que otra", image: "./Loteria/22 la bota.jpg" },
+    { id: 23, title: "La Luna", phrase: "El farol de los enamorados", image: "./Loteria/23 la luna.jpg" },
+    { id: 24, title: "El Cotorro", phrase: "Cotorro, cotorro saca la pata, y empiézame a platicar", image: "./Loteria/24 el cotorro.jpg" },
+    { id: 25, title: "El Borracho", phrase: "A qué borracho tan necio ya no lo puedo aguantar", image: "./Loteria/25 el borracho.jpg" },
+    { id: 26, title: "El Negrito", phrase: "El que se comió el azúcar", image: "./Loteria/26 el negrito.jpg" },
+    { id: 27, title: "El Corazón", phrase: "No me extrañes corazón, que regreso en el camión", image: "./Loteria/27 el corazon.jpg" },
+    { id: 28, title: "La Sandía", phrase: "La barriga que Juan tenía, era empacho de sandía", image: "./Loteria/28 la sandia.jpg" },
+    { id: 29, title: "El Tambor", phrase: "No te arrugues, cuero viejo, que te quiero pa' tambor", image: "./Loteria/29 el tambor.jpg" },
+    { id: 30, title: "El Camarón", phrase: "Camarón que se duerme, se lo lleva la corriente", image: "./Loteria/30 el camaron.jpg" },
+    { id: 31, title: "Las Jaras", phrase: "Las jaras del indio Adán, donde pegan, dan", image: "./Loteria/31 las jaras.jpg" },
+    { id: 32, title: "El Músico", phrase: "El músico trompa de hule, ya no me quiere tocar", image: "./Loteria/32 el musico.jpg" },
+    { id: 33, title: "La Araña", phrase: "Atarántamela a palos, no me la dejes llegar", image: "./Loteria/33 la arana.jpg" },
+    { id: 34, title: "El Soldado", phrase: "Uno, dos y tres, el soldado p'al cuartel", image: "./Loteria/34 el soldado.jpg" },
+    { id: 35, title: "La Estrella", phrase: "La guía de los marineros", image: "./Loteria/35 la estrella.jpg" },
+    { id: 36, title: "El Cazo", phrase: "El caso que te hago es poco", image: "./Loteria/36 el cazo.jpg" },
+    { id: 37, title: "El Mundo", phrase: "Este mundo es una bola, y nosotros un bolón", image: "./Loteria/37 el mundo.jpg" },
+    { id: 38, title: "El Apache", phrase: "¡Ah, Chihuahua! Cuánto apache con pantalón y huarache", image: "./Loteria/38 el apache.jpg" },
+    { id: 39, title: "El Nopal", phrase: "Al nopal lo van a ver, nomás cuando tiene tunas", image: "./Loteria/39 el nopal.jpg" },
+    { id: 40, title: "El Alacrán", phrase: "El que con la cola pica, le dan una paliza", image: "./Loteria/40 el alacran.jpg" },
+    { id: 41, title: "La Rosa", phrase: "Rosita, Rosaura, ven que te quiero ahora", image: "./Loteria/41 la rosa.jpg" },
+    { id: 42, title: "La Calavera", phrase: "Al pasar por el panteón, me encontré un calaverón", image: "./Loteria/42 la calavera.jpg" },
+    { id: 43, title: "La Campana", phrase: "Tú con la campana y yo con tu hermana", image: "./Loteria/43 la campana.jpg" },
+    { id: 44, title: "El Cantarito", phrase: "Tanto va el cántaro al agua, hasta que se quiebra", image: "./Loteria/44 el cantarito.jpg" },
+    { id: 45, title: "El Venado", phrase: "Saltando va por el monte", image: "./Loteria/45 el venado.jpg" },
+    { id: 46, title: "El Sol", phrase: "La cobija de los pobres", image: "./Loteria/46 el sol.jpg" },
+    { id: 47, title: "La Corona", phrase: "El sombrero de los reyes", image: "./Loteria/47 la corona.jpg" },
+    { id: 48, title: "La Chalupa", phrase: "Rema que rema Lupita, sentada en su chalupita", image: "./Loteria/48 la chalupa.jpg" },
+    { id: 49, title: "El Pino", phrase: "Fresco, oloroso, en todo tiempo hermoso", image: "./Loteria/49 el pino.jpg" },
+    { id: 50, title: "El Pescado", phrase: "El que por la boca muere, aunque mudo fuere", image: "./Loteria/50 el pescado.jpg" },
+    { id: 51, title: "La Palma", phrase: "Palmero, sube a la palma y bájame un coco real", image: "./Loteria/51 la palma.jpg" },
+    { id: 52, title: "La Maceta", phrase: "El que nace pa' maceta, no sale del corredor", image: "./Loteria/52 la maceta.jpg" },
+    { id: 53, title: "El Arpa", phrase: "Arpa vieja de mi suegra, ya no sirves pa' tocar", image: "./Loteria/53 el arpa.jpg" },
+    { id: 54, title: "La Rana", phrase: "Al ver a la verde rana, qué brinco pegó tu hermana", image: "./Loteria/54 la rana.jpg" }
+];
+        
+        // Variables globales
+        let deck = [...loteriaCards];
+        let currentCardIndex = 0;
+        let historyCards = [];
+        let intervalId = null;
+        let speed = 5; // Valor inicial (5 segundos)
+        let isPaused = true;
+        
+        // Elementos del DOM
+        const startBtn = document.getElementById('startBtn');
+        const pauseBtn = document.getElementById('pauseBtn');
+        const nextCardBtn = document.getElementById('nextCardBtn');
+        const shuffleBtn = document.getElementById('shuffleBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const speedSlider = document.getElementById('speedSlider');
+        const speedValue = document.getElementById('speedValue');
+        const cardImage = document.getElementById('cardImage');
+        const cardTitle = document.getElementById('cardTitle');
+        const cardPhrase = document.getElementById('cardPhrase');
+        const cardNumber = document.getElementById('cardNumber');
+        const historyCardsContainer = document.getElementById('historyCards');
+        const showTitle = document.getElementById('showTitle');
+        const showPhrase = document.getElementById('showPhrase');
+        const showNumber = document.getElementById('showNumber');
+        
+        // Función para barajar las cartas
+        function shuffleDeck() {
+            deck = [...loteriaCards].sort(() => Math.random() - 0.5);
+            currentCardIndex = 0;
+            historyCards = [];
+            historyCardsContainer.innerHTML = '';
+            updateCardDisplay(null);
+            
+            // Si el juego está en marcha, reiniciamos el intervalo
+            if (!isPaused) {
+                clearInterval(intervalId);
+                startCardInterval();
+            }
+        }
+        
+        // Función para mostrar la carta actual
+        function updateCardDisplay(card) {
+            if (!card) {
+                cardImage.src = "/api/placeholder/200/300";
+                cardTitle.textContent = '';
+                cardPhrase.textContent = '';
+                cardNumber.textContent = '';
+                return;
+            }
+            
+            cardImage.src = card.image;
+            cardImage.alt = card.title;
+            
+            cardTitle.textContent = showTitle.checked ? card.title : '';
+            cardPhrase.textContent = showPhrase.checked ? card.phrase : '';
+            cardNumber.textContent = showNumber.checked ? `Número: ${card.id}` : '';
+            
+            // Opcional: llamar a la función de voz si se quiere
+            if (!isPaused) {
+                speakCard(card);
+            }
+        }
+        
+        // Función para agregar una carta al historial
+        function addToHistory(card) {
+            if (!card) return;
+            
+            historyCards.push(card);
+            
+            const historyCard = document.createElement('div');
+            historyCard.className = 'history-card';
+            
+            const cardImg = document.createElement('img');
+            cardImg.src = card.image;
+            cardImg.alt = card.title;
+            
+            const cardText = document.createElement('div');
+            cardText.textContent = `${card.id}. ${card.title}`;
+            
+            historyCard.appendChild(cardImg);
+            historyCard.appendChild(cardText);
+            
+            historyCardsContainer.prepend(historyCard);
+        }
+        
+        // Función para mostrar la siguiente carta
+        function nextCard() {
+            if (currentCardIndex >= deck.length) {
+                alert('¡Se han mostrado todas las cartas!');
+                pauseGame();
+                return;
+            }
+            
+            const card = deck[currentCardIndex];
+            updateCardDisplay(card);
+            addToHistory(card);
+            currentCardIndex++;
+            
+            // Si ya no hay más cartas, pausar el juego
+            if (currentCardIndex >= deck.length) {
+                pauseGame();
+            }
+        }
+        
+        // Función para iniciar el intervalo de cartas
+        function startCardInterval() {
+            // Convertir el valor del slider a segundos (de 1 a 10 segundos)
+            const intervalTime = (11 - speed) * 1000;
+            
+            intervalId = setInterval(() => {
+                nextCard();
+            }, intervalTime);
+        }
+        
+        // Función para iniciar el juego
+        function startGame() {
+            if (isPaused) {
+                isPaused = false;
+                startBtn.disabled = true;
+                pauseBtn.disabled = false;
+                nextCardBtn.disabled = true;
+                
+                if (currentCardIndex === 0 || currentCardIndex >= deck.length) {
+                    nextCard();
+                }
+                
+                startCardInterval();
+            }
+        }
+        
+        // Función para pausar el juego
+        function pauseGame() {
+            if (!isPaused) {
+                isPaused = true;
+                clearInterval(intervalId);
+                startBtn.disabled = false;
+                pauseBtn.disabled = true;
+                nextCardBtn.disabled = false;
+            }
+        }
+        
+        // Función para reiniciar el juego
+        function resetGame() {
+            pauseGame();
+            shuffleDeck();
+        }
+        
+        // Función para cantar la carta (usando la API de voz del navegador)
+        function speakCard(card) {
+            if ('speechSynthesis' in window) {
+                const speech = new SpeechSynthesisUtterance();
+                let textToSpeak = '';
+                
+                if (showNumber.checked) {
+                    textToSpeak += `Número ${card.id}. `;
+                }
+                
+                if (showTitle.checked) {
+                    textToSpeak += `${card.title}. `;
+                }
+                
+                if (showPhrase.checked) {
+                    textToSpeak += card.phrase;
+                }
+                
+                speech.text = textToSpeak;
+                speech.lang = 'es-MX';
+                
+                // Cancelar cualquier voz anterior
+                window.speechSynthesis.cancel();
+                
+                // Hablar
+                window.speechSynthesis.speak(speech);
+            }
+        }
+        
+        // Event Listeners
+        startBtn.addEventListener('click', startGame);
+        pauseBtn.addEventListener('click', pauseGame);
+        nextCardBtn.addEventListener('click', nextCard);
+        shuffleBtn.addEventListener('click', shuffleDeck);
+        resetBtn.addEventListener('click', resetGame);
+        
+        speedSlider.addEventListener('input', function() {
+            speed = parseInt(this.value);
+            speedValue.textContent = speed;
+            
+            if (!isPaused) {
+                clearInterval(intervalId);
+                startCardInterval();
+            }
+        });
+        
+        showTitle.addEventListener('change', function() {
+            const currentCard = currentCardIndex > 0 ? deck[currentCardIndex - 1] : null;
+            updateCardDisplay(currentCard);
+        });
+        
+        showPhrase.addEventListener('change', function() {
+            const currentCard = currentCardIndex > 0 ? deck[currentCardIndex - 1] : null;
+            updateCardDisplay(currentCard);
+        });
+        
+        showNumber.addEventListener('change', function() {
+            const currentCard = currentCardIndex > 0 ? deck[currentCardIndex - 1] : null;
+            updateCardDisplay(currentCard);
+        });
+        
+        // Inicialización
+        shuffleDeck();
+    </script>
+</body>
+</html>
