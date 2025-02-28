@@ -183,6 +183,16 @@
                 grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
             }
         }
+
+        .voice-options {
+            max-height: 100px;
+            overflow-y: auto;
+            border-radius: 5px;
+            padding: 10px;
+        }
+        .radio-group {
+            margin-bottom: 5px;
+        }
     </style>
     <!-- Preload de imágenes -->
     <link rel="preload" href="./Loteria/1 el gallo.jpg" as="image">
@@ -274,6 +284,10 @@
                     <input type="range" id="speedSlider" min="1" max="10" value="5">
                     <span id="speedValue">5</span>
                 </div>
+            </div>
+            <div class="voice-options">
+                <label>Voces:</label>
+                <div id="voiceOptionsContainer" class="radio-group"></div>
             </div>
         </div>
         
@@ -373,6 +387,9 @@ const loteriaCards = [
         const showTitle = document.getElementById('showTitle');
         const showPhrase = document.getElementById('showPhrase');
         const showNumber = document.getElementById('showNumber');
+        const voiceOptionsContainer = document.getElementById('voiceOptionsContainer');
+        let selectedVoice = 'es-ES';
+        let voices = [];
         
         // Función para barajar las cartas
         function shuffleDeck() {
@@ -523,7 +540,7 @@ const loteriaCards = [
                 }
                 
                 speech.text = textToSpeak;
-                speech.lang = 'es-MX';
+                speech.lang = selectedVoice;
                 
                 // Cancelar cualquier voz anterior
                 window.speechSynthesis.cancel();
@@ -532,6 +549,41 @@ const loteriaCards = [
                 window.speechSynthesis.speak(speech);
             }
         }
+
+        function populateVoiceOptions() {
+            voices = window.speechSynthesis.getVoices().filter(voice => voice.lang.includes('es') || voice.name.toLowerCase().includes('spanish'));
+            voiceOptionsContainer.innerHTML = '';
+            voices.forEach((voice, index) => {
+                const radioGroup = document.createElement('div');
+                radioGroup.className = 'radio-group';
+
+                const radioInput = document.createElement('input');
+                radioInput.type = 'radio';
+                radioInput.id = `voice${index}`;
+                radioInput.name = 'voice';
+                radioInput.value = voice.lang;
+                if (index === 0) radioInput.checked = true;
+
+                const radioLabel = document.createElement('label');
+                radioLabel.htmlFor = `voice${index}`;
+                radioLabel.textContent = voice.name;
+
+                radioGroup.appendChild(radioInput);
+                radioGroup.appendChild(radioLabel);
+                voiceOptionsContainer.appendChild(radioGroup);
+
+                radioInput.addEventListener('change', function() {
+                    selectedVoice = this.value;
+                });
+            });
+        }
+
+        if (window.speechSynthesis.onvoiceschanged !== undefined) {
+            window.speechSynthesis.onvoiceschanged = populateVoiceOptions;
+        }
+
+        // Call populateVoiceOptions on page load to ensure voices are populated
+        window.addEventListener('load', populateVoiceOptions);
         
         // Event Listeners
         startBtn.addEventListener('click', startGame);
@@ -565,7 +617,7 @@ const loteriaCards = [
             const currentCard = currentCardIndex > 0 ? deck[currentCardIndex - 1] : null;
             updateCardDisplay(currentCard);
         });
-        
+
         // Inicialización
         shuffleDeck();
     </script>
