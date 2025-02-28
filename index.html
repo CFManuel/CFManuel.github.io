@@ -388,7 +388,7 @@ const loteriaCards = [
         const showPhrase = document.getElementById('showPhrase');
         const showNumber = document.getElementById('showNumber');
         const voiceOptionsContainer = document.getElementById('voiceOptionsContainer');
-        let selectedVoice = 'es-ES';
+        let selectedVoice = null;
         let voices = [];
         
         // Función para barajar las cartas
@@ -540,7 +540,7 @@ const loteriaCards = [
                 }
                 
                 speech.text = textToSpeak;
-                speech.lang = selectedVoice;
+                speech.voice = selectedVoice;
                 
                 // Cancelar cualquier voz anterior
                 window.speechSynthesis.cancel();
@@ -561,8 +561,11 @@ const loteriaCards = [
                 radioInput.type = 'radio';
                 radioInput.id = `voice${index}`;
                 radioInput.name = 'voice';
-                radioInput.value = voice.lang;
-                if (index === 0) radioInput.checked = true;
+                radioInput.value = voice.name;
+                if (index === 0) {
+                    radioInput.checked = true;
+                    selectedVoice = voice;
+                }
 
                 const radioLabel = document.createElement('label');
                 radioLabel.htmlFor = `voice${index}`;
@@ -573,7 +576,7 @@ const loteriaCards = [
                 voiceOptionsContainer.appendChild(radioGroup);
 
                 radioInput.addEventListener('change', function() {
-                    selectedVoice = this.value;
+                    selectedVoice = voices.find(v => v.name === this.value);
                 });
             });
         }
